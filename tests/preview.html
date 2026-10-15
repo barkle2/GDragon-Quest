@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>시제품 화면 검토</title><style>html,body{margin:0;height:100%;overflow:hidden}iframe{border:0;width:100%;height:100%}</style></head><body><iframe id="preview" title="게임 화면" src="../index.html"></iframe><script>
+// 별도 테스트 프로필의 시각 검토용 자료입니다. 실제 게임에는 불러오지 않습니다.
+const frame=document.getElementById('preview');
+const requestedWidth=new URLSearchParams(location.search).get('width');
+if(requestedWidth==='390')frame.style.width='390px';
+frame.addEventListener('load',()=>{
+  const w=frame.contentWindow,K=w.GDragonCore,C=w.GDragonContent,s=K.fresh();
+  const query=new URLSearchParams(location.search),view=query.get('view')||'map';
+  s.name='봄바람';s.epithet=C.epithets[0];s.introIndex=C.intro.length-1;
+  s.screen=view==='stage'?'stage':view==='intro'?'intro':view==='story'?'stage-intro':view==='worlds'?'worlds':view==='finished'?'finished':'map';s.resumeScreen=s.screen;
+  const index=Math.max(0,Math.min(4,Number(query.get('stage'))||0));s.stage=index;
+  const completed=view==='finished'?5:view==='stage'?index:0;
+  for(let i=0;i<completed;i++){
+    const p=s.progress[i];p.complete=true;p.mode='complete';p.task=C.stages[i].tasks.length-1;
+    p.steps.forEach((step,j)=>{const t=C.stages[i].tasks[j];if(Array.isArray(t.correct))step.answers=t.correct.slice();else step.choice=t.correct;step.reason=t.type==='reason'?'검토할 근거를 확인하고 도구의 역할을 비교합니다.':'';step.checked=true;step.passed=true;});
+  }
+  if(view==='stage')s.progress[index].mode='challenge';
+  if(view==='intro')s.introIndex=5;
+  K.save(s,w.localStorage);w.GDragonApp.reload();document.title='READY · '+view;
+},{once:true});
+</script></body></html>
